@@ -12,23 +12,29 @@
 #include <time.h>
 #include <stdbool.h>
 
+typedef enum s_lvl lvl;
+typedef struct s_Info Info;
+
 char	*itoa(int n);
 int     my_strlen(char *str);
 void    remStruct(Info ** info);
-int     strlen_2d(const char ** arr);
-void	free_2d(char **s, size_t i);
+int     strlen_2d(char ** arr);
+void	free_2d(char **s);
 char	*strjoin(char *s1, char *s2, int flag);
 char	*substr(char *s, unsigned int start, size_t len);
 char	**split(char *s, char c);
 
-const int*  getDate();
-bool        getAddTask(const char ** av);
+const int   *getDate();
+bool        getAddTask( char ** av);
+char      *getPrio(lvl prio);
+void    getViewTask();
+void      *info_sort(void * arg);
+bool    getUpdateTask(char **av);
+bool getDeleteTask(char **av);
 
-typedef enum s_lvl lvl;
-typedef struct s_Info Info;
 
 enum s_lvl {
-    HIGHT,
+    HIGH,
     MEDIUM,
     LOW
 };

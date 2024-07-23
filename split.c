@@ -12,7 +12,12 @@
 
 #include "header.h"
 
-
+static void	free_split(char **s, int i)
+{
+	while (i-- >= 0)
+		free (s[i]);
+	free(s);
+}
 
 static	size_t	ft_str_word(const char *s, char c)
 {
@@ -76,7 +81,7 @@ static char	**ft_chek_arr(char *s, char c, char **arr)
 			arr[i++] = ft_sub_str1(s - k, 0, k);
 			if (!arr)
 			{
-				free_2d(arr, i);
+				free_split(arr, i);
 				return (NULL);
 			}
 		}

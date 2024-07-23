@@ -1,9 +1,9 @@
 #include "header.h"
 
-void	free_2d(char **s, size_t i)
+void	free_2d(char **s)
 {
-	while (i-- >= 0)
-		free (s[i]);
+	for (int i = 0; s[i]; ++ i)
+        free(s[i]);
 	free(s);
 }
 

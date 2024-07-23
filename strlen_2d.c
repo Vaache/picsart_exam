@@ -1,6 +1,6 @@
 #include "header.h"
 
-int strlen_2d(const char ** arr) {
+int strlen_2d(char ** arr) {
     int i = 0;
 
     while (arr && arr[i])

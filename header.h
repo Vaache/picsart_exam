@@ -14,12 +14,14 @@
 
 typedef enum s_lvl lvl;
 typedef struct s_Info Info;
+char * err;
 
 char	*itoa(int n);
 int     my_strlen(char *str);
 void    remStruct(Info ** info);
 int     strlen_2d(char ** arr);
 void	free_2d(char **s);
+char	*strtrim(char *s1, char *set);
 char	*strjoin(char *s1, char *s2, int flag);
 char	*substr(char *s, unsigned int start, size_t len);
 char	**split(char *s, char c);
@@ -31,18 +33,20 @@ void    getViewTask();
 void      *info_sort(void * arg);
 bool    getUpdateTask(char **av);
 bool getDeleteTask(char **av);
+void *checkTaskDate(void *arg);
 
 
 enum s_lvl {
     HIGH,
     MEDIUM,
-    LOW
+    LOW,
 };
 
 struct s_Info {
     char * title;
     char * description;
     char * due;
+    char * status;
     lvl priority;
 };
 

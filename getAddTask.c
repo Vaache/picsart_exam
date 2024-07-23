@@ -1,6 +1,5 @@
 #include "header.h"
 
-char * err;
 const char * title = "--title";
 const char * desc  = "--desc";
 const char * priority = "--priority";
@@ -18,17 +17,17 @@ bool check_Data(char *data, Info ** info) {
 
     const int * tdata = getDate();
 
-    if (year < tdata[0]) {
+    if (year < tdata[0] || strlen(arr[0]) != 4) {
         err = "You entered an incorrect year date";
         free_2d(arr);
         free((void *)tdata);
         return false;
-    } else if (month < 1 || month > 12 || month < tdata[1]) {
+    } else if ((month < 1 || month > 12 || month < tdata[1]) || (strlen(arr[1]) > 2 || strlen(arr[1]) < 1)) {
         err = "You entered an incorrect month date";
         free_2d(arr);
         free((void *)tdata);
         return false;
-    } else if (day < 1 || day > 31 || day < tdata[2]) {
+    } else if (day < 1 || day > 31 || day < tdata[2] || (strlen(arr[1]) > 2 || strlen(arr[1]) < 1)) {
         err = "You entered an incorrect day date";
         free_2d(arr);
         free((void *)tdata);
@@ -95,10 +94,12 @@ void setInfoInFile(Info * info) {
         int i = 0;
         while (buff[i] && buff[i] != '\n')
             ++ i;
+        int flag = 1;
         buff[i] = '\0';
 
         lcount = atoi(buff) + 1;
         char *tmp = itoa(lcount);
+        tmp = strjoin(tmp, "\n", 1);
 
         lseek(fd, 0, SEEK_SET);
         write(fd, tmp, my_strlen(tmp));
@@ -110,7 +111,7 @@ void setInfoInFile(Info * info) {
     char *prio = getPrio(info->priority);
     dprintf(fd, "%d. %s [%s] Due: %s Status: Pending\n", lcount, info->title, \
                 prio, info->due);
-    dprintf(1, "Task added successfully");
+    dprintf(1, "Task added successfully\n");
     free(prio);
     return ;
 }

@@ -5,10 +5,14 @@ const char * view = "view";
 const char * update = "update";
 const char * delete = "delete";
 
-pthread_t t1;
+extern char *title;
+extern char *desc;
+extern char *priority;
+extern char *due;
+pthread_t t1,t2;
 
 int main(int ac, char **av) {
-    pthread_create(&t1, NULL, info_sort, NULL);
+    pthread_create(&t1, NULL, checkTaskDate, NULL);
     pthread_join(t1, NULL);
 
     if (ac <= 1) {
@@ -16,7 +20,8 @@ int main(int ac, char **av) {
         exit (1);
     }
 
-    if (ac == 10 && !strcmp(av[1], add)) {
+    if (ac == 10 && !strcmp(av[1], add) && !strcmp(av[2], title) && !strcmp(av[4], desc)\
+        && !strcmp(av[6], priority) && !strcmp(av[8], due)) {
         if (getAddTask(av) == false) {
             return 1;
         }
@@ -32,11 +37,11 @@ int main(int ac, char **av) {
             return 1;
         }
     }
-    // ? else {
-    //     printf("Your Entered Invalid Command!!!\n");
-    //     return 1;
-    // }
-
-
+    else {
+        printf("Your Entered Invalid Command!!!\n");
+        return 1;
+    }
+    pthread_create(&t2, NULL, info_sort, NULL);
+    pthread_join(t2, NULL);
     return 0;
 }

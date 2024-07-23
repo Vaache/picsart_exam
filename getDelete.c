@@ -13,20 +13,13 @@ bool getDeleteTask(char **av) {
         return false;
     }
 
-    int nfd = open("new.txt", O_CREAT | O_WRONLY | O_TRUNC, 0644);
-    if (nfd < 0) {
-        perror("Error opening new.txt");
-        fclose(fd);
-        return false;
-    }
 
     char buff[1024] = {0};
 
-    // Read the number of tasks
+
     if (fgets(buff, sizeof(buff), fd) == NULL) {
         perror("Error reading number of tasks");
         fclose(fd);
-        close(nfd);
         return false;
     }
     buff[strcspn(buff, "\n")] = '\0';
@@ -35,8 +28,13 @@ bool getDeleteTask(char **av) {
     int idToDelete = atoi(av[3]);
     if (lcount < idToDelete) {
         fclose(fd);
-        close(nfd);
         dprintf(1, "Invalid ID !!!\n");
+        return false;
+    }
+    int nfd = open("new.txt", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (nfd < 0) {
+        perror("Error opening new.txt");
+        fclose(fd);
         return false;
     }
 
@@ -61,5 +59,6 @@ bool getDeleteTask(char **av) {
         return false;
     }
 
+    printf("Task deleted successfully.\n");
     return true;
 }

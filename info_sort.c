@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "header.h"
 
 Info* readTasksFromFile(const char* filename, int* taskCount);
@@ -16,7 +13,6 @@ void* info_sort(void * arg) {
     Info* tasks = readTasksFromFile(filename, &taskCount);
 
     if (tasks == NULL) {
-        // perror("read");
         return NULL;
     }
 
@@ -32,60 +28,55 @@ void* info_sort(void * arg) {
 Info* readTasksFromFile(const char* filename, int* taskCount) {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
-        perror("open");
         return NULL;
     }
 
-    // Allocate memory for line buffer
-    char line[256];
-    
-    // Read the number of tasks from the first line
+    char line[1024] = {0};
+
     if (fgets(line, sizeof(line), file) == NULL) {
-        // perror("fgets");
         fclose(file);
         return NULL;
     }
     if (sscanf(line, "%d", taskCount) != 1) {
-        perror("sscanf");
         fclose(file);
         return NULL;
     }
 
-    // Allocate memory for tasks
     Info* tasks = malloc(*taskCount * sizeof(Info));
     if (tasks == NULL) {
-        perror("malloc");
         fclose(file);
         return NULL;
     }
 
-    // Read and parse each task
+    int actualTaskCount = 0;
+
     for (int i = 0; i < *taskCount; i++) {
         if (fgets(line, sizeof(line), file) == NULL) {
-            perror("fgets");
-            freeTasks(tasks, i); // Free allocated tasks before returning
+            freeTasks(tasks, actualTaskCount);
             fclose(file);
             return NULL;
         }
+        char **arr = split(line, ' ');
+        char *title = strjoin(arr[1], " ", 0);
+        title = strjoin(title, arr[2], 1);
+        char *trimed = strtrim(arr[3], "[]");
+        char *priorityStr = trimed;
+        char *due = strdup(arr[5]);
+        char *status = strdup(arr[7]);
 
-        char title[512] = {0}, priorityStr[512] = {0}, due[32] = {0};
-        int scanned = sscanf(line, "%*d. %[^[[] [%[^]]] Due: %[^ ]", title, priorityStr, due);
-        
-        if (scanned < 2) {
-            // If the line does not match the expected format, skip it or handle as needed
-            fprintf(stderr, "Warning: Line %d does not match expected format: %s", i + 2, line);
-            tasks[i].title = strdup("Unknown");
-            tasks[i].description = NULL;
-            tasks[i].due = strdup("Unknown");
-            tasks[i].priority = LOW; // Default priority if unknown
-        } else {
-            tasks[i].title = strdup(title);
-            tasks[i].description = NULL;
-            tasks[i].due = strdup(due);
-            tasks[i].priority = parsePriority(priorityStr);
-        }
+        tasks[actualTaskCount].title = strdup(title);
+        tasks[actualTaskCount].due = strdup(due);
+        tasks[actualTaskCount].priority = parsePriority(priorityStr);
+        tasks[actualTaskCount].status = strdup(status);
+
+        free_2d(arr);
+        free(title);
+        free(due);
+        free(status);
+        actualTaskCount++;
     }
 
+    *taskCount = actualTaskCount;
     fclose(file);
     return tasks;
 }
@@ -105,18 +96,17 @@ void sortTasksByPriority(Info* tasks, int taskCount) {
 void writeTasksToFile(const char* filename, Info* tasks, int taskCount) {
     FILE* file = fopen(filename, "w");
     if (file == NULL) {
-        perror("fopen");
+        // perror("fopen");
         return;
     }
 
-    // Write the number of tasks as the first line
     fprintf(file, "%d\n", taskCount);
 
     for (int i = 0; i < taskCount; i++) {
-        fprintf(file, "%d. %s[%s] Due: %s Status: Pending\n", i + 1, tasks[i].title,
+        fprintf(file, "%d. %s [%s] Due: %s Status: %s", i + 1, tasks[i].title,
                 tasks[i].priority == HIGH ? "High" :
                 tasks[i].priority == MEDIUM ? "Medium" : "Low",
-                tasks[i].due);
+                tasks[i].due, tasks[i].status);
     }
 
     fclose(file);
@@ -126,6 +116,7 @@ void freeTasks(Info* tasks, int taskCount) {
     for (int i = 0; i < taskCount; i++) {
         free(tasks[i].title);
         free(tasks[i].due);
+        free(tasks[i].status);
     }
     free(tasks);
 }

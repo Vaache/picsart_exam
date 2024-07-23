@@ -10,7 +10,6 @@ bool getUpdateTask(char **av) {
     if (strcmp(av[4], status))
         return false;
     FILE *fd = fopen("TaskManager.txt", "r+");
-    int nfd = open("new.txt", O_CREAT | O_RDWR, 0644);
 
     char buff[1024] = {0};
 
@@ -25,6 +24,7 @@ bool getUpdateTask(char **av) {
         dprintf(1, "Invalid ID !!!\n");
         return false;
     }
+    int nfd = open("new.txt", O_CREAT | O_RDWR, 0644);
     for (int i = 0; i < id; ++ i, fgets(buff, sizeof(buff), fd))
     {
         dprintf(nfd, "%s", buff);
@@ -32,7 +32,6 @@ bool getUpdateTask(char **av) {
             dprintf(nfd, "\n");
         bzero(buff, sizeof(buff));
     }
-    printf("%s\n", buff);
 
     int dot = 0;
     int i = 0;
@@ -53,8 +52,10 @@ bool getUpdateTask(char **av) {
         buff[i++] = av[5][j];
     buff[i++] = '\n';
     buff[i] = '\0';
-    dprintf(nfd, "%s", buff);
-    bzero(buff, sizeof(buff));
+    if (strcmp(buff, av[4])) {
+        dprintf(nfd, "%s", buff);
+        bzero(buff, sizeof(buff));
+    }
     while (fgets(buff, sizeof(buff), fd))
     {
         dprintf(nfd, "%s", buff);
@@ -64,6 +65,6 @@ bool getUpdateTask(char **av) {
     remove("TaskManager.txt");
 
     rename("new.txt","TaskManager.txt");
-
+    printf("Task updated successfully.\n");
     return true;
 }
